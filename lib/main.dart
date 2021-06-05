@@ -32,6 +32,10 @@ class _MyAuthPageState extends State<MyAuthPage> {
   String newUserEmail = "";
   // 入力されたパスワード
   String newUserPassword = "";
+  // 入力されたメールアドレス（ログイン）
+  String loginUserEmail = "";
+  // 入力されたパスワード（ログイン）
+  String loginUserPassword = "";
   // 登録・ログインに関する情報を表示
   String infoText = "";
 
@@ -43,8 +47,8 @@ class _MyAuthPageState extends State<MyAuthPage> {
           padding: EdgeInsets.all(32),
           child: Column(
             children: <Widget>[
+              // 新規アドレス登録
               TextFormField(
-                // テキスト入力のラベルを設定
                 decoration: InputDecoration(labelText: "メールアドレス"),
                 onChanged: (String value) {
                   setState(() {
@@ -52,6 +56,7 @@ class _MyAuthPageState extends State<MyAuthPage> {
                   });
                 },
               ),
+              // 新規メールアドレス
               TextFormField(
                 decoration: InputDecoration(labelText: "パスワード（6文字以上）"),
                 // パスワードが見えないようにする
@@ -63,6 +68,7 @@ class _MyAuthPageState extends State<MyAuthPage> {
                 },
               ),
               const SizedBox(height: 8),
+              // 登録ボタンの設定
               ElevatedButton(
                   onPressed: () async {
                     try {
@@ -87,6 +93,50 @@ class _MyAuthPageState extends State<MyAuthPage> {
                     }
                   },
                   child: Text("ユーザー登録"),
+              ),
+
+              const SizedBox(height: 32),
+              TextFormField(
+                decoration: InputDecoration(labelText: "メールアドレス"),
+                onChanged: (String value) {
+                  setState(() {
+                    loginUserEmail = value;
+                  });
+                },
+              ),
+              TextFormField(
+                decoration: InputDecoration(labelText: "パスワード"),
+                obscureText: true,
+                onChanged: (String value) {
+                  setState(() {
+                    loginUserPassword = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    // メール/パスワードでログイン
+                    final FirebaseAuth auth = FirebaseAuth.instance;
+                    final UserCredential result =
+                        await auth.signInWithEmailAndPassword(
+                            email: loginUserEmail,
+                            password: loginUserPassword
+                        );
+                    // ログインに成功した場合
+                    final User user = result.user!;
+                    setState(() {
+                      infoText = "ログイン成功：${user.email}";
+                    });
+                  } catch (e) {
+                    // ログインに失敗した場合
+                    setState(() {
+                      infoText = "ログイン失敗：${e.toString()}";
+                    });
+                  }
+                },
+                child: Text("ログイン"),
               ),
               const SizedBox(height: 8),
               Text(infoText)
